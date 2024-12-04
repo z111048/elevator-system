@@ -3,30 +3,38 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # 設置你想要觸發部署的分支
+      - main
+
+# 設置 GITHUB_TOKEN 的權限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build project
         run: npm run build
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages  # 部署的目標分支
-          folder: dist      # 要部署的資料夾
-          clean: true      # 清除舊的文件
+          folder: dist
+          branch: gh-pages
+          clean: true
